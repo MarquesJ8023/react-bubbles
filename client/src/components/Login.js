@@ -1,77 +1,35 @@
 import React, { useState } from "react";
-import { withRouter } from 'react-router-dom';
-import { ButtonContainer } from '../styled-components/Button';
 import axios from 'axios';
 
-const Login = props => {
-  const [ credentials, setCredentials ] = useState({
-    username: '',
-    password: ''
-  });
+const Login = (props) => {
+  // make a post request to retrieve a token from the api
+  // when you have handled the token, navigate to the BubblePage route
+  const [values, setValues] = useState({username: '', password: ''});
 
-  const changeHandler = event => {
-    event.preventDefault();
-    setCredentials({ ...credentials, [event.target.name]: event.target.value});
+  const updateValue = e => {
+    setValues({...values, [e.target.name]: e.target.value});
   };
 
-  const handleSubmit = event => {
-    event.preventDefault();
-  };
-
-  const login = e => {
+  const submit = e => {
     e.preventDefault();
-    axios
-      .post(`http://localhost:5000/api/login`, credentials)
+    axios.post('http://localhost:5000/api/login', values)
       .then(res => {
-        localStorage.setItem('token', res.data.payload);
+        console.log(res.data);
+        localStorage.setItem('userToken', res.data.payload);
+        props.history.push('/bubble');
       })
-      .catch(err => console.log(err.response));
-      props.history.push('/protected');
+      .catch(e => console.log(e));
   };
 
   return (
-
-    <div className="loginModal">
-      <form
-        className="login-modal"
-        onSubmit={login}
-        onKeyDown={props.closeLoginHandler2}
-        tabIndex="0"
-      >
-        <h1 className="loginTitle">Welcome Back</h1>
-        <p className="loginInputs">
-          <label>
-            Username:
-            <input
-              className="input-modal"
-              type="text"
-              name="username"
-              onChange={changeHandler}
-              value={credentials.username}
-            />
-          </label>
-        </p>
-
-        <p className="loginInputs">
-          <label>
-            Password:
-            <input
-              className="input-modal"
-              type="password"
-              name="password"
-              onChange={changeHandler}
-              value={credentials.password}
-            />
-          </label>
-        </p>
-
-        <ButtonContainer className="button-modal" onClick={login}>
-          Login!
-        </ButtonContainer>
-        <p className="forgotText">Forgot username or password? <a href="/">Click here</a></p>
+    <div>
+      <form name='Login'>
+        <input type='text' name='username' placeholder='Username' value={values.username} onChange={updateValue} />
+        <input type='password' name='password' placeholder='Password' value={values.password} onChange={updateValue} />
+        <button onClick={submit}>Login</button>
       </form>
     </div>
   );
 };
 
-export default withRouter(Login);
+export default Login;
